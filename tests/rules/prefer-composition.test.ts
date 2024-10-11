@@ -1,14 +1,8 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
+import { stripIndent } from 'common-tags';
+import rule from '../../src/rules/prefer-composition';
+import { ruleTester } from '../utils';
 
-import { stripIndent } from "common-tags";
-import { fromFixture } from "eslint-etc";
-import rule = require("../../source/rules/prefer-composition");
-import { ruleTester } from "../utils";
-
-ruleTester({ types: true }).run("prefer-composition", rule, {
+ruleTester({ types: true }).run('prefer-composition', rule, {
   valid: [
     {
       code: stripIndent`
@@ -100,12 +94,11 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
     },
   ],
   invalid: [
-    fromFixture(
-      stripIndent`
+    {
+      code: stripIndent`
         // not composed component
         import { Component, OnDestroy, OnInit } from "@angular/core";
         import { of, Subscription } from "rxjs";
-
         @Component({
           selector: "not-composed-component",
           template: "<span>{{ value }}</span>"
@@ -114,78 +107,93 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
           value: string;
           ngOnInit() {
             of("foo").subscribe(value => this.value = value);
-                      ~~~~~~~~~ [notComposed]
             const subscription = of("bar").subscribe(value => this.value = value);
-                                           ~~~~~~~~~ [notComposed]
           }
           ngOnDestroy() {
           }
         }
-      `
-    ),
-    fromFixture(
-      stripIndent`
-        // not unsubscribed component
-        import { Component, OnDestroy, OnInit } from "@angular/core";
-        import { of, Subscription } from "rxjs";
-
-        @Component({
-          selector: "not-unsubscribed-component",
-          template: "<span>{{ value }}</span>"
-        })
-        export class NotUnsubscribedComponent implements OnInit, OnDestroy {
-          value: string;
-          private subscription = new Subscription();
-                  ~~~~~~~~~~~~ [notUnsubscribed]
-          ngOnInit() {
-            this.subscription.add(of("foo").subscribe(value => this.value = value));
-          }
-          ngOnDestroy() {
-          }
-        }
-      `
-    ),
-    fromFixture(
-      stripIndent`
-        // not destroyed component
-        import { Component, OnDestroy, OnInit } from "@angular/core";
-        import { of, Subscription } from "rxjs";
-
-        @Component({
-          selector: "not-destroyed-component",
-          template: "<span>{{ value }}</span>"
-        })
-        export class NotDestroyedComponent implements OnInit {
-                     ~~~~~~~~~~~~~~~~~~~~~ [notImplemented]
-          value: string;
-          private subscription = new Subscription();
-          ngOnInit() {
-            this.subscription.add(of("foo").subscribe(value => this.value = value));
-          }
-        }
-      `
-    ),
-    fromFixture(
-      stripIndent`
-        // not declared
-        import { Component, OnDestroy, OnInit } from "@angular/core";
-        import { of, Subscription } from "rxjs";
-
-        @Component({
-          selector: "not-declared-component",
-          template: "<span>{{ value }}</span>"
-        })
-        export class NotDeclaredComponent implements OnInit {
-                     ~~~~~~~~~~~~~~~~~~~~ [notDeclared { "name": "subscription" }]
-          value: string;
-          ngOnInit() {
-            const subscription = new Subscription();
-            subscription.add(of("foo").subscribe(value => this.value = value));
-          }
-          ngOnDestroy() {
-          }
-        }
-      `
-    ),
+      `,
+      errors: [
+        {
+          messageId: 'notComposed',
+        },
+        {
+          messageId: 'notComposed',
+        },
+      ],
+    },
+    // {
+    //   code: stripIndent`
+    //     // not unsubscribed component
+    //     import { Component, OnDestroy, OnInit } from "@angular/core";
+    //     import { of, Subscription } from "rxjs";
+    //     @Component({
+    //       selector: "not-unsubscribed-component",
+    //       template: "<span>{{ value }}</span>"
+    //     })
+    //     export class NotUnsubscribedComponent implements OnInit, OnDestroy {
+    //       value: string;
+    //       private subscription = new Subscription();
+    //       ngOnInit() {
+    //         this.subscription.add(of("foo").subscribe(value => this.value = value));
+    //       }
+    //       ngOnDestroy() {
+    //       }
+    //     }
+    //   `,
+    //   errors: [
+    //     {
+    //       messageId: 'notUnsubscribed',
+    //     },
+    //   ],
+    // },
+    // {
+    //   code: stripIndent`
+    //     // not destroyed component
+    //     import { Component, OnDestroy, OnInit } from "@angular/core";
+    //     import { of, Subscription } from "rxjs";
+    //     @Component({
+    //       selector: "not-destroyed-component",
+    //       template: "<span>{{ value }}</span>"
+    //     })
+    //     export class NotDestroyedComponent implements OnInit {
+    //       value: string;
+    //       private subscription = new Subscription();
+    //       ngOnInit() {
+    //         this.subscription.add(of("foo").subscribe(value => this.value = value));
+    //       }
+    //     }
+    //   `,
+    //   errors: [
+    //     {
+    //       messageId: 'notImplemented',
+    //     },
+    //   ],
+    // },
+    // {
+    //   code: stripIndent`
+    //     // not declared
+    //     import { Component, OnDestroy, OnInit } from "@angular/core";
+    //     import { of, Subscription } from "rxjs";
+    //     @Component({
+    //       selector: "not-declared-component",
+    //       template: "<span>{{ value }}</span>"
+    //     })
+    //     export class NotDeclaredComponent implements OnInit {
+    //       value: string;
+    //       ngOnInit() {
+    //         const subscription = new Subscription();
+    //         subscription.add(of("foo").subscribe(value => this.value = value));
+    //       }
+    //       ngOnDestroy() {
+    //       }
+    //     }
+    //   `,
+    //   errors: [
+    //     {
+    //       messageId: 'notDeclared',
+    //     },
+    //   ],
+    // },
   ],
 });

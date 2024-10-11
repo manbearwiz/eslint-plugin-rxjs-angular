@@ -1,28 +1,18 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
+import {
+  AST_NODE_TYPES,
+  type TSESLint,
+  type TSESTree as es,
+} from '@typescript-eslint/utils';
+import { stripIndent } from 'common-tags';
 
-import {
-  TSESLint,
-  TSESTree as es,
-} from "@typescript-eslint/experimental-utils";
-import { stripIndent } from "common-tags";
-import {
-  getTypeServices,
-  isCallExpression,
-  isIdentifier,
-  isMemberExpression,
-  isThisExpression,
-} from "eslint-etc";
-import { ruleCreator } from "../utils";
+import { getTypeServices, ruleCreator } from '../utils';
 
 const messages = {
-  noDestroy: "`ngOnDestroy` is not implemented.",
+  noDestroy: '`ngOnDestroy` is not implemented.',
   noTakeUntil:
-    "Forbids calling `subscribe` without an accompanying `takeUntil`.",
-  notCalled: "`{{name}}.{{method}}()` not called.",
-  notDeclared: "Subject `{{name}}` not a class property.",
+    'Forbids calling `subscribe` without an accompanying `takeUntil`.',
+  notCalled: '`{{name}}.{{method}}()` not called.',
+  notDeclared: 'Subject `{{name}}` not a class property.',
 } as const;
 type MessageIds = keyof typeof messages;
 
@@ -33,26 +23,25 @@ const defaultOptions: readonly {
   checkDestroy?: boolean;
 }[] = [];
 
-const rule = ruleCreator({
+export default ruleCreator({
   defaultOptions,
   meta: {
     docs: {
       description:
-        "Forbids `subscribe` calls without an accompanying `takeUntil` within Angular components (and, optionally, within services, directives, and pipes).",
+        'Forbids `subscribe` calls without an accompanying `takeUntil` within Angular components (and, optionally, within services, directives, and pipes).',
       recommended: false,
     },
-    fixable: undefined,
     hasSuggestions: false,
     messages,
     schema: [
       {
         properties: {
-          alias: { type: "array", items: { type: "string" } },
-          checkComplete: { type: "boolean" },
-          checkDecorators: { type: "array", items: { type: "string" } },
-          checkDestroy: { type: "boolean" },
+          alias: { type: 'array', items: { type: 'string' } },
+          checkComplete: { type: 'boolean' },
+          checkDecorators: { type: 'array', items: { type: 'string' } },
+          checkDestroy: { type: 'boolean' },
         },
-        type: "object",
+        type: 'object',
         description: stripIndent`
         An optional object with optional \`alias\`, \`checkComplete\`, \`checkDecorators\` and \`checkDestroy\` properties.
         The \`alias\` property is an array containing the names of operators that aliases for \`takeUntil\`.
@@ -62,10 +51,10 @@ const rule = ruleCreator({
       `,
       },
     ],
-    type: "problem",
+    type: 'problem',
   },
-  name: "prefer-takeuntil",
-  create: (context, unused: typeof defaultOptions) => {
+  name: 'prefer-takeuntil',
+  create: (context, _unused: typeof defaultOptions) => {
     const { couldBeObservable } = getTypeServices(context);
 
     // If an alias is specified, check for the subject-based destroy only if
@@ -76,7 +65,7 @@ const rule = ruleCreator({
     const {
       alias = [],
       checkComplete = false,
-      checkDecorators = ["Component"],
+      checkDecorators = ['Component'],
       checkDestroy = alias.length === 0,
     } = config;
 
@@ -96,7 +85,7 @@ const rule = ruleCreator({
       const { subscribeCallExpressions } = entry;
       subscribeCallExpressions.forEach((callExpression) => {
         const { callee } = callExpression;
-        if (!isMemberExpression(callee)) {
+        if (callee.type !== AST_NODE_TYPES.MemberExpression) {
           return;
         }
         const { object } = callee;
@@ -125,7 +114,7 @@ const rule = ruleCreator({
 
       if (!ngOnDestroyDefinition) {
         context.report({
-          messageId: "noDestroy",
+          messageId: 'noDestroy',
           node: classDeclaration.id ?? classDeclaration,
         });
         return;
@@ -145,7 +134,7 @@ const rule = ruleCreator({
 
       const names = new Set<string>();
       subscribeCallExpressionsToNames.forEach((value) =>
-        value.forEach((name) => names.add(name))
+        value.forEach((name) => names.add(name)),
       );
       names.forEach((name) => {
         const check: Check = {
@@ -157,21 +146,21 @@ const rule = ruleCreator({
         if (!checkSubjectProperty(name, entry)) {
           check.descriptors.push({
             data: { name },
-            messageId: "notDeclared",
+            messageId: 'notDeclared',
             node: classDeclaration.id ?? classDeclaration,
           });
         }
         if (!checkSubjectCall(name, nextCallExpressions)) {
           check.descriptors.push({
-            data: { method: "next", name },
-            messageId: "notCalled",
+            data: { method: 'next', name },
+            messageId: 'notCalled',
             node: ngOnDestroyDefinition.key,
           });
         }
         if (checkComplete && !checkSubjectCall(name, completeCallExpressions)) {
           check.descriptors.push({
-            data: { method: "complete", name },
-            messageId: "notCalled",
+            data: { method: 'complete', name },
+            messageId: 'notCalled',
             node: ngOnDestroyDefinition.key,
           });
         }
@@ -179,14 +168,13 @@ const rule = ruleCreator({
 
       subscribeCallExpressionsToNames.forEach((names) => {
         const report = [...names].every(
-          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-          (name) => namesToChecks.get(name)!.descriptors.length > 0
+          (name) => !!namesToChecks.get(name)?.descriptors?.length,
         );
         if (report) {
-          names.forEach(
-            /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-            (name) => (namesToChecks.get(name)!.report = true)
-          );
+          names.forEach((name) => {
+            // biome-ignore lint/style/noNonNullAssertion: <explanation>
+            namesToChecks.get(name)!.report = true;
+          });
         }
       });
       namesToChecks.forEach((check) => {
@@ -198,19 +186,20 @@ const rule = ruleCreator({
 
     function checkOperator(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (!isIdentifier(callee)) {
+      if (callee.type !== AST_NODE_TYPES.Identifier) {
         return { found: false };
       }
-      if (callee.name === "takeUntil" || alias.includes(callee.name)) {
+      if (callee.name === 'takeUntil' || alias.includes(callee.name)) {
         const [arg] = callExpression.arguments;
         if (arg) {
           if (
-            isMemberExpression(arg) &&
-            isThisExpression(arg.object) &&
-            isIdentifier(arg.property)
+            arg.type === AST_NODE_TYPES.MemberExpression &&
+            arg.object.type === AST_NODE_TYPES.ThisExpression &&
+            arg.property.type === AST_NODE_TYPES.Identifier
           ) {
             return { found: true, name: arg.property.name };
-          } else if (arg && isIdentifier(arg)) {
+          }
+          if (arg && arg.type === AST_NODE_TYPES.Identifier) {
             return { found: true, name: arg.name };
           }
         }
@@ -223,18 +212,18 @@ const rule = ruleCreator({
 
     function checkSubjectCall(
       name: string,
-      callExpressions: es.CallExpression[]
+      callExpressions: es.CallExpression[],
     ) {
       const callExpression = callExpressions.find(
         ({ callee }) =>
-          (isMemberExpression(callee) &&
-            isIdentifier(callee.object) &&
+          (callee.type === AST_NODE_TYPES.MemberExpression &&
+            callee.object.type === AST_NODE_TYPES.Identifier &&
             callee.object.name === name) ||
-          (isMemberExpression(callee) &&
-            isMemberExpression(callee.object) &&
-            isThisExpression(callee.object.object) &&
-            isIdentifier(callee.object.property) &&
-            callee.object.property.name === name)
+          (callee.type === AST_NODE_TYPES.MemberExpression &&
+            callee.object.type === AST_NODE_TYPES.MemberExpression &&
+            callee.object.object.type === AST_NODE_TYPES.ThisExpression &&
+            callee.object.property.type === AST_NODE_TYPES.Identifier &&
+            callee.object.property.name === name),
       );
       return Boolean(callExpression);
     }
@@ -242,32 +231,33 @@ const rule = ruleCreator({
     function checkSubjectProperty(name: string, entry: Entry) {
       const { propertyDefinitions } = entry;
       const propertyDefinition = propertyDefinitions.find(
-        (propertyDefinition: any) => propertyDefinition.key.name === name
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        (propertyDefinition: any) => propertyDefinition.key.name === name,
       );
       return Boolean(propertyDefinition);
     }
 
     function checkSubscribe(callExpression: es.CallExpression, entry: Entry) {
       const { subscribeCallExpressionsToNames } = entry;
-      /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       const names = subscribeCallExpressionsToNames.get(callExpression)!;
       let takeUntilFound = false;
 
       const { callee } = callExpression;
-      if (!isMemberExpression(callee)) {
+      if (callee.type !== AST_NODE_TYPES.MemberExpression) {
         return;
       }
       const { object, property } = callee;
 
       if (
-        isCallExpression(object) &&
-        isMemberExpression(object.callee) &&
-        isIdentifier(object.callee.property) &&
-        object.callee.property.name === "pipe"
+        object.type === AST_NODE_TYPES.CallExpression &&
+        object.callee.type === AST_NODE_TYPES.MemberExpression &&
+        object.callee.property.type === AST_NODE_TYPES.Identifier &&
+        object.callee.property.name === 'pipe'
       ) {
         const operators = object.arguments;
         operators.forEach((operator) => {
-          if (isCallExpression(operator)) {
+          if (operator.type === AST_NODE_TYPES.CallExpression) {
             const { found, name } = checkOperator(operator);
             takeUntilFound = takeUntilFound || found;
             if (name) {
@@ -279,7 +269,7 @@ const rule = ruleCreator({
 
       if (!takeUntilFound) {
         context.report({
-          messageId: "noTakeUntil",
+          messageId: 'noTakeUntil',
           node: property,
         });
       }
@@ -291,29 +281,28 @@ const rule = ruleCreator({
     }
 
     function hasDecorator(node: es.ClassDeclaration) {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       const { decorators } = node as any;
-      return (
-        decorators &&
-        decorators.some((decorator: any) => {
-          const { expression } = decorator;
-          if (!isCallExpression(expression)) {
-            return false;
-          }
-          if (!isIdentifier(expression.callee)) {
-            return false;
-          }
-          const { name } = expression.callee;
-          return checkDecorators.some((check: string) => name === check);
-        })
-      );
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      return decorators?.some((decorator: any) => {
+        const { expression } = decorator;
+        if (expression.type !== AST_NODE_TYPES.CallExpression) {
+          return false;
+        }
+        if (expression.callee.type !== AST_NODE_TYPES.Identifier) {
+          return false;
+        }
+        const { name } = expression.callee;
+        return checkDecorators.some((check: string) => name === check);
+      });
     }
 
     return {
       "CallExpression[callee.property.name='subscribe']": (
-        node: es.CallExpression
+        node: es.CallExpression,
       ) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.subscribeCallExpressions.push(node);
           entry.subscribeCallExpressionsToNames.set(node, new Set<string>());
         }
@@ -332,42 +321,40 @@ const rule = ruleCreator({
           >(),
         });
       },
-      "ClassDeclaration:exit": (node: es.ClassDeclaration) => {
+      'ClassDeclaration:exit': (_node: es.ClassDeclaration) => {
         const entry = entries.pop();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           checkEntry(entry);
         }
       },
       PropertyDefinition: (node: es.PropertyDefinition) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.propertyDefinitions.push(node);
         }
       },
       "MethodDefinition[key.name='ngOnDestroy'][kind='method']": (
-        node: es.MethodDefinition
+        node: es.MethodDefinition,
       ) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.ngOnDestroyDefinition = node;
         }
       },
       "MethodDefinition[key.name='ngOnDestroy'][kind='method'] CallExpression[callee.property.name='next']":
         (node: es.CallExpression) => {
           const entry = getEntry();
-          if (entry && entry.hasDecorator) {
+          if (entry?.hasDecorator) {
             entry.nextCallExpressions.push(node);
           }
         },
       "MethodDefinition[key.name='ngOnDestroy'][kind='method'] CallExpression[callee.property.name='complete']":
         (node: es.CallExpression) => {
           const entry = getEntry();
-          if (entry && entry.hasDecorator) {
+          if (entry?.hasDecorator) {
             entry.completeCallExpressions.push(node);
           }
         },
     };
   },
 });
-
-export = rule;

@@ -1,24 +1,9 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/recommended/tsconfig"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "declaration": false,
-    "esModuleInterop": true,
-    "importHelpers": true,
-    "lib": ["esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "noEmitHelpers": true,
-    "outDir": "build",
-    "paths": {},
-    "removeComments": true,
-    "skipLibCheck": true,
-    "sourceMap": false,
-    "strict": true,
-    "target": "es2019"
+    "outDir": "./dist"
   },
-  "exclude": [],
-  "include": [
-    "source/**/*.ts",
-    "tests/**/*.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts"]
 }

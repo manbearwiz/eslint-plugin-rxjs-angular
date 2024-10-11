@@ -1,14 +1,8 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
+import { stripIndent } from 'common-tags';
+import rule from '../../src/rules/prefer-async-pipe';
+import { ruleTester } from '../utils';
 
-import { stripIndent } from "common-tags";
-import { fromFixture } from "eslint-etc";
-import rule = require("../../source/rules/prefer-async-pipe");
-import { ruleTester } from "../utils";
-
-ruleTester({ types: true }).run("prefer-async-pipe", rule, {
+ruleTester({ types: true }).run('prefer-async-pipe', rule, {
   valid: [
     stripIndent`
       // async pipe
@@ -23,8 +17,8 @@ ruleTester({ types: true }).run("prefer-async-pipe", rule, {
     `,
   ],
   invalid: [
-    fromFixture(
-      stripIndent`
+    {
+      code: stripIndent`
         // subscribe
         import { of } from "rxjs";
         @Component({
@@ -35,10 +29,14 @@ ruleTester({ types: true }).run("prefer-async-pipe", rule, {
           something: string;
           ngOnInit() {
             of("foo").subscribe(value => this.something = value);
-                      ~~~~~~~~~ [forbidden]
           }
         }
-      `
-    ),
+      `,
+      errors: [
+        {
+          messageId: 'forbidden',
+        },
+      ],
+    },
   ],
 });

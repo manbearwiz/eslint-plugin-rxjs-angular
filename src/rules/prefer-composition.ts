@@ -1,59 +1,44 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
-
-import { TSESTree as es } from "@typescript-eslint/experimental-utils";
-import { stripIndent } from "common-tags";
-import {
-  getParent,
-  getTypeServices,
-  isAssignmentExpression,
-  isCallExpression,
-  isIdentifier,
-  isMemberExpression,
-  isVariableDeclarator,
-} from "eslint-etc";
-import { ruleCreator } from "../utils";
+import { AST_NODE_TYPES, type TSESTree as es } from '@typescript-eslint/utils';
+import { stripIndent } from 'common-tags';
+import { getTypeServices, ruleCreator } from '../utils';
 
 const defaultOptions: readonly {
   checkDecorators?: string[];
 }[] = [];
 
-const rule = ruleCreator({
+export default ruleCreator({
   defaultOptions,
   meta: {
     docs: {
       description:
-        "Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes).",
+        'Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes).',
       recommended: false,
     },
-    fixable: undefined,
     hasSuggestions: false,
     messages: {
-      notComposed: "Subscription not composed.",
-      notDeclared: "Composed subscription `{{name}}` not a class property.",
-      notImplemented: "`ngOnDestroy` not implemented.",
-      notUnsubscribed: "Composed subscription not unsubscribed.",
+      notComposed: 'Subscription not composed.',
+      notDeclared: 'Composed subscription `{{name}}` not a class property.',
+      notImplemented: '`ngOnDestroy` not implemented.',
+      notUnsubscribed: 'Composed subscription not unsubscribed.',
     },
     schema: [
       {
         properties: {
-          checkDecorators: { type: "array", items: { type: "string" } },
+          checkDecorators: { type: 'array', items: { type: 'string' } },
         },
-        type: "object",
+        type: 'object',
         description: stripIndent`
         An optional object with an optional \`checkDecorators\` property.
         The \`checkDecorators\` property is an array containing the names of the decorators that determine whether or not a class is checked.
       `,
       },
     ],
-    type: "problem",
+    type: 'problem',
   },
-  name: "prefer-composition",
-  create: (context, unused: typeof defaultOptions) => {
+  name: 'prefer-composition',
+  create: (context, _unused: typeof defaultOptions) => {
     const { couldBeObservable, couldBeSubscription } = getTypeServices(context);
-    const [{ checkDecorators = ["Component"] } = {}] = context.options;
+    const [{ checkDecorators = ['Component'] } = {}] = context.options;
 
     type Entry = {
       addCallExpressions: es.CallExpression[];
@@ -82,7 +67,7 @@ const rule = ruleCreator({
       }
       subscribeCallExpressions.forEach((callExpression) => {
         const { callee } = callExpression;
-        if (isMemberExpression(callee)) {
+        if (callee.type === AST_NODE_TYPES.MemberExpression) {
           const { object, property } = callee;
           if (!couldBeObservable(object)) {
             return;
@@ -91,7 +76,7 @@ const rule = ruleCreator({
             return;
           }
           context.report({
-            messageId: "notComposed",
+            messageId: 'notComposed',
             node: property,
           });
         }
@@ -99,7 +84,7 @@ const rule = ruleCreator({
 
       if (!ngOnDestroyDefinition) {
         context.report({
-          messageId: "notImplemented",
+          messageId: 'notImplemented',
           node: classDeclaration.id ?? classDeclaration,
         });
         return;
@@ -107,13 +92,14 @@ const rule = ruleCreator({
 
       subscriptions.forEach((subscription) => {
         const propertyDefinition = propertyDefinitions.find(
+          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
           (propertyDefinition: any) =>
-            propertyDefinition.key.name === subscription
+            propertyDefinition.key.name === subscription,
         );
         if (!propertyDefinition) {
           context.report({
             data: { name: subscription },
-            messageId: "notDeclared",
+            messageId: 'notDeclared',
             node: classDeclaration.id ?? classDeclaration,
           });
           return;
@@ -123,12 +109,12 @@ const rule = ruleCreator({
           (callExpression) => {
             const name = getMethodCalleeName(callExpression);
             return name === subscription;
-          }
+          },
         );
         if (!callExpression) {
           context.report({
             data: { name: subscription },
-            messageId: "notUnsubscribed",
+            messageId: 'notUnsubscribed',
             node: propertyDefinition.key,
           });
           return;
@@ -143,12 +129,15 @@ const rule = ruleCreator({
 
     function getMethodCalleeName(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (isMemberExpression(callee)) {
+      if (callee.type === AST_NODE_TYPES.MemberExpression) {
         const { object } = callee;
-        if (isMemberExpression(object) && isIdentifier(object.property)) {
+        if (
+          object.type === AST_NODE_TYPES.MemberExpression &&
+          object.property.type === AST_NODE_TYPES.Identifier
+        ) {
           return object.property.name;
         }
-        if (isIdentifier(object)) {
+        if (object.type === AST_NODE_TYPES.Identifier) {
           return object.name;
         }
       }
@@ -157,28 +146,27 @@ const rule = ruleCreator({
 
     function getMethodCalleeObject(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (isMemberExpression(callee)) {
+      if (callee.type === AST_NODE_TYPES.MemberExpression) {
         return callee.object;
       }
       return undefined;
     }
 
     function hasDecorator(node: es.ClassDeclaration) {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       const { decorators } = node as any;
-      return (
-        decorators &&
-        decorators.some((decorator: any) => {
-          const { expression } = decorator;
-          if (!isCallExpression(expression)) {
-            return false;
-          }
-          if (!isIdentifier(expression.callee)) {
-            return false;
-          }
-          const { name } = expression.callee;
-          return checkDecorators.some((check: string) => name === check);
-        })
-      );
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      return decorators?.some((decorator: any) => {
+        const { expression } = decorator;
+        if (expression.type !== AST_NODE_TYPES.CallExpression) {
+          return false;
+        }
+        if (expression.callee.type !== AST_NODE_TYPES.Identifier) {
+          return false;
+        }
+        const { name } = expression.callee;
+        return checkDecorators.some((check: string) => name === check);
+      });
     }
 
     function isComposed(callExpression: es.CallExpression, entry: Entry) {
@@ -186,13 +174,13 @@ const rule = ruleCreator({
       // subscription or if it's assigned to a variable that is added to a
       // subscription.
       const { addCallExpressions, subscriptions } = entry;
-      const parent = getParent(callExpression);
+      const parent = callExpression.parent;
       if (!parent) {
         return false;
       }
-      if (isCallExpression(parent)) {
+      if (parent.type === AST_NODE_TYPES.CallExpression) {
         const addCallExpression = addCallExpressions.find(
-          (callExpression) => callExpression === parent
+          (callExpression) => callExpression === parent,
         );
         if (!addCallExpression) {
           return false;
@@ -208,13 +196,16 @@ const rule = ruleCreator({
         subscriptions.add(name);
         return true;
       }
-      if (isVariableDeclarator(parent) && isIdentifier(parent.id)) {
+      if (
+        parent.type === AST_NODE_TYPES.VariableDeclarator &&
+        parent.id.type === AST_NODE_TYPES.Identifier
+      ) {
         return isVariableComposed(parent.id, entry);
       }
       if (
-        isAssignmentExpression(parent) &&
-        isIdentifier(parent.left) &&
-        parent.operator === "="
+        parent.type === AST_NODE_TYPES.AssignmentExpression &&
+        parent.left.type === AST_NODE_TYPES.Identifier &&
+        parent.operator === '='
       ) {
         return isVariableComposed(parent.left, entry);
       }
@@ -227,7 +218,7 @@ const rule = ruleCreator({
       const { name } = identifier;
       const { addCallExpressions, subscriptions } = entry;
       const addCallExpression = addCallExpressions.find(
-        (callExpression) => getMethodCalleeName(callExpression) === name
+        (callExpression) => getMethodCalleeName(callExpression) === name,
       );
       if (!addCallExpression) {
         return false;
@@ -242,18 +233,18 @@ const rule = ruleCreator({
 
     return {
       "CallExpression[callee.property.name='add']": (
-        node: es.CallExpression
+        node: es.CallExpression,
       ) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.addCallExpressions.push(node);
         }
       },
       "CallExpression[callee.property.name='subscribe']": (
-        node: es.CallExpression
+        node: es.CallExpression,
       ) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.subscribeCallExpressions.push(node);
         }
       },
@@ -268,35 +259,33 @@ const rule = ruleCreator({
           unsubscribeCallExpressions: [],
         });
       },
-      "ClassDeclaration:exit": (node: es.ClassDeclaration) => {
+      'ClassDeclaration:exit': (_node: es.ClassDeclaration) => {
         const entry = entries.pop();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           checkEntry(entry);
         }
       },
       PropertyDefinition: (node: es.PropertyDefinition) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.propertyDefinitions.push(node);
         }
       },
       "MethodDefinition[key.name='ngOnDestroy'][kind='method']": (
-        node: es.MethodDefinition
+        node: es.MethodDefinition,
       ) => {
         const entry = getEntry();
-        if (entry && entry.hasDecorator) {
+        if (entry?.hasDecorator) {
           entry.ngOnDestroyDefinition = node;
         }
       },
       "MethodDefinition[key.name='ngOnDestroy'][kind='method'] CallExpression[callee.property.name='unsubscribe']":
         (node: es.CallExpression) => {
           const entry = getEntry();
-          if (entry && entry.hasDecorator) {
+          if (entry?.hasDecorator) {
             entry.unsubscribeCallExpressions.push(node);
           }
         },
     };
   },
 });
-
-export = rule;
