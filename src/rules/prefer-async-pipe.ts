@@ -1,8 +1,13 @@
 import type { TSESTree as es } from '@typescript-eslint/utils';
 import { getTypeServices, ruleCreator } from '../utils';
 
+const messages = {
+  forbidden:
+    'Calling `subscribe` in a component is forbidden; use an `async` pipe instead.',
+};
+type MessageIds = keyof typeof messages;
+
 type Options = readonly Record<string, boolean | string>[];
-type MessageIds = 'forbidden';
 
 const defaultOptions: Options = [{}];
 

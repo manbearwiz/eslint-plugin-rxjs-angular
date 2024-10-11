@@ -2,15 +2,17 @@ import { AST_NODE_TYPES, type TSESTree as es } from '@typescript-eslint/utils';
 import { stripIndent } from 'common-tags';
 import { getTypeServices, ruleCreator } from '../utils';
 
+const messages = {
+  notComposed: 'Subscription not composed.',
+  notDeclared: 'Composed subscription `{{name}}` not a class property.',
+  notImplemented: '`ngOnDestroy` not implemented.',
+  notUnsubscribed: 'Composed subscription not unsubscribed.',
+};
+type MessageIds = keyof typeof messages;
+
 const defaultOptions: readonly {
   checkDecorators?: string[];
 }[] = [];
-
-type MessageIds =
-  | 'notComposed'
-  | 'notDeclared'
-  | 'notImplemented'
-  | 'notUnsubscribed';
 
 export default ruleCreator<typeof defaultOptions, MessageIds>({
   defaultOptions,
@@ -21,12 +23,7 @@ export default ruleCreator<typeof defaultOptions, MessageIds>({
       recommended: false,
     },
     hasSuggestions: false,
-    messages: {
-      notComposed: 'Subscription not composed.',
-      notDeclared: 'Composed subscription `{{name}}` not a class property.',
-      notImplemented: '`ngOnDestroy` not implemented.',
-      notUnsubscribed: 'Composed subscription not unsubscribed.',
-    },
+    messages,
     schema: [
       {
         properties: {
