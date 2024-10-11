@@ -27,7 +27,7 @@ pre-push:
   parallel: true
   commands:
     test:
-      run: npx vitest --run --coverage --reporter=vitest-tiny-reporter
+      run: npx vitest --run --reporter=vitest-tiny-reporter
       fail_text: "Tests failed"
     check_format:
       run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true .
