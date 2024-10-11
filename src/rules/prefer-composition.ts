@@ -6,7 +6,13 @@ const defaultOptions: readonly {
   checkDecorators?: string[];
 }[] = [];
 
-export default ruleCreator({
+type MessageIds =
+  | 'notComposed'
+  | 'notDeclared'
+  | 'notImplemented'
+  | 'notUnsubscribed';
+
+export default ruleCreator<typeof defaultOptions, MessageIds>({
   defaultOptions,
   meta: {
     docs: {

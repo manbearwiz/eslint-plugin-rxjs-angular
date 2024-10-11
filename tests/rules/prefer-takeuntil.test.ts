@@ -1,6 +1,7 @@
 import { stripIndent } from 'common-tags';
 import rule from '../../src/rules/prefer-takeuntil';
 import { ruleTester } from '../utils';
+import { fromFixture } from '../utils/from-fixture';
 
 ruleTester({ types: true }).run('prefer-takeuntil', rule, {
   valid: [
@@ -303,7 +304,7 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
     {
       code: stripIndent`
-        // https://github.com/manbearwiz/rxjs-tslint-rules/issues/115
+        // https://github.com/cartant/rxjs-tslint-rules/issues/115
         import { Component } from "@angular/core";
         import { of, Subject } from "rxjs";
         import { switchMap, takeUntil } from "rxjs/operators";
@@ -337,7 +338,7 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
     {
       code: stripIndent`
-        // https://github.com/manbearwiz/eslint-plugin-rxjs-angular/issues/5
+        // https://github.com/cartant/eslint-plugin-rxjs-angular/issues/5
         import { Component } from "@angular/core";
         import { of } from "rxjs";
         import { switchMap, take } from "rxjs/operators";
@@ -365,270 +366,291 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
   ],
   invalid: [
-    // fromFixture(
-    //   stripIndent`
-    //     // no pipe component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-pipe-component"
-    //     })
-    //     class NoPipeComponent {
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         const { destroy } = this;
-    //         o.subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //       ngOnDestroy() {
-    //         this.destroy.next();
-    //         this.destroy.complete();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no takeuntil component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-takeuntil-component"
-    //     })
-    //     class NoTakeUntilComponent {
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         const { destroy } = this;
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //       ngOnDestroy() {
-    //         this.destroy.next();
-    //         this.destroy.complete();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no subject component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-subject-component"
-    //     })
-    //     class NoSubjectComponent implements OnDestroy {
-    //           ~~~~~~~~~~~~~~~~~~ [notDeclared { "name": "o" }]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o),
-    //           takeUntil(o)
-    //         ).subscribe();
-    //       }
-    //       ngOnDestroy() {
-    //       ~~~~~~~~~~~ [notCalled { "method": "next", "name": "o" }]
-    //       ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "o" }]
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no destroy component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-destroy-component"
-    //     })
-    //     class NoDestroyComponent {
-    //           ~~~~~~~~~~~~~~~~~~ [noDestroy]
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         const { destroy } = this;
-    //         o.pipe(
-    //           switchMap(_ => o),
-    //           takeUntil(destroy)
-    //         ).subscribe();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no next component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-next-component"
-    //     })
-    //     class NoNextComponent implements OnDestroy {
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o),
-    //           takeUntil(this.destroy)
-    //         ).subscribe();
-    //       }
-    //       ngOnDestroy() {
-    //       ~~~~~~~~~~~ [notCalled { "method": "next", "name": "destroy" }]
-    //         this.destroy.complete();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no complete component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-complete-component"
-    //     })
-    //     class NoCompleteComponent implements OnDestroy {
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o),
-    //           takeUntil(this.destroy)
-    //         ).subscribe();
-    //       }
-    //       ngOnDestroy() {
-    //       ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "destroy" }]
-    //         this.destroy.next();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // no destroy and no takeuntil component
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-takeuntil-component"
-    //     })
-    //     class NoTakeUntilComponent {
-    //           ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ checkComplete: true }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // without alias
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     const someAlias = takeUntil;
-    //     @Component({
-    //       selector: "component-without-alias"
-    //     })
-    //     class NoTakeUntilComponent {
-    //       private destroy = new Subject<void>();
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //       ngOnDestroy() {
-    //         this.destroy.next();
-    //         this.destroy.complete();
-    //       }
-    //     }
-    //   `,
-    //   { options: [{ alias: ['someAlias'] }] },
-    // ),
-    // fromFixture(
-    //   stripIndent`
-    //     // decorators without takeuntil
-    //     import { Component, OnDestroy } from "@angular/core";
-    //     import { of, Subject } from "rxjs";
-    //     import { switchMap, takeUntil } from "rxjs/operators";
-    //     const o = of("o");
-    //     @Component({
-    //       selector: "no-next-component"
-    //     })
-    //     class NoTakeUntilComponent {
-    //           ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //     }
-    //     @Injectable()
-    //     class NoTakeUntilService {
-    //           ~~~~~~~~~~~~~~~~~~ [noDestroy]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //     }
-    //     @Pipe({
-    //       name: 'controlByName',
-    //     })
-    //     class NoTakeUntilPipe {
-    //           ~~~~~~~~~~~~~~~ [noDestroy]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //     }
-    //     @Directive({
-    //       selector: 'my-directive'
-    //     })
-    //     class NoTakeUntilDirective {
-    //           ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
-    //       someMethod() {
-    //         o.pipe(
-    //           switchMap(_ => o)
-    //         ).subscribe();
-    //           ~~~~~~~~~ [noTakeUntil]
-    //       }
-    //     }
-    //   `,
-    //   {
-    //     options: [
-    //       {
-    //         checkDecorators: ['Component', 'Pipe', 'Injectable', 'Directive'],
-    //       },
-    //     ],
-    //   },
-    // ),
+    fromFixture(
+      stripIndent`
+        // no pipe component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-pipe-component"
+        })
+        class NoPipeComponent {
+          private destroy = new Subject<void>();
+          someMethod() {
+            const { destroy } = this;
+            o.subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.destroy.next();
+            this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no takeuntil component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-takeuntil-component"
+        })
+        class NoTakeUntilComponent {
+          private destroy = new Subject<void>();
+          someMethod() {
+            const { destroy } = this;
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.destroy.next();
+            this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no subject component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-subject-component"
+        })
+        class NoSubjectComponent implements OnDestroy {
+              ~~~~~~~~~~~~~~~~~~ [notDeclared { "name": "o" }]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(o)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+          ~~~~~~~~~~~ [notCalled { "method": "next", "name": "o" }]
+          ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "o" }]
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no destroy component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-destroy-component"
+        })
+        class NoDestroyComponent {
+              ~~~~~~~~~~~~~~~~~~ [noDestroy]
+          private destroy = new Subject<void>();
+          someMethod() {
+            const { destroy } = this;
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(destroy)
+            ).subscribe();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no next component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-next-component"
+        })
+        class NoNextComponent implements OnDestroy {
+          private destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+          ~~~~~~~~~~~ [notCalled { "method": "next", "name": "destroy" }]
+            this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no complete component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-complete-component"
+        })
+        class NoCompleteComponent implements OnDestroy {
+          private destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+          ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "destroy" }]
+            this.destroy.next();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no destroy and no takeuntil component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-takeuntil-component"
+        })
+        class NoTakeUntilComponent {
+              ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // without alias
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+        const someAlias = takeUntil;
+
+        @Component({
+          selector: "component-without-alias"
+        })
+        class NoTakeUntilComponent {
+          private destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.destroy.next();
+            this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ alias: ['someAlias'] }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // decorators without takeuntil
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+
+        const o = of("o");
+
+        @Component({
+          selector: "no-next-component"
+        })
+        class NoTakeUntilComponent {
+              ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+        }
+
+        @Injectable()
+        class NoTakeUntilService {
+              ~~~~~~~~~~~~~~~~~~ [noDestroy]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+        }
+
+        @Pipe({
+          name: 'controlByName',
+        })
+        class NoTakeUntilPipe {
+              ~~~~~~~~~~~~~~~ [noDestroy]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+        }
+
+        @Directive({
+          selector: 'my-directive'
+        })
+        class NoTakeUntilDirective {
+              ~~~~~~~~~~~~~~~~~~~~ [noDestroy]
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+        }
+      `,
+      {
+        options: [
+          {
+            checkDecorators: ['Component', 'Pipe', 'Injectable', 'Directive'],
+          },
+        ],
+      },
+    ),
   ],
 });

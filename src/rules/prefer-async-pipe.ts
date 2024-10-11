@@ -1,8 +1,13 @@
 import type { TSESTree as es } from '@typescript-eslint/utils';
 import { getTypeServices, ruleCreator } from '../utils';
 
-export default ruleCreator({
-  defaultOptions: [],
+type Options = readonly Record<string, boolean | string>[];
+type MessageIds = 'forbidden';
+
+const defaultOptions: Options = [{}];
+
+export default ruleCreator<Options, MessageIds>({
+  defaultOptions,
   meta: {
     docs: {
       description:

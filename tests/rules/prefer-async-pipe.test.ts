@@ -1,6 +1,7 @@
 import { stripIndent } from 'common-tags';
 import rule from '../../src/rules/prefer-async-pipe';
 import { ruleTester } from '../utils';
+import { fromFixture } from '../utils/from-fixture';
 
 ruleTester({ types: true }).run('prefer-async-pipe', rule, {
   valid: [
@@ -17,8 +18,8 @@ ruleTester({ types: true }).run('prefer-async-pipe', rule, {
     `,
   ],
   invalid: [
-    {
-      code: stripIndent`
+    fromFixture(
+      stripIndent`
         // subscribe
         import { of } from "rxjs";
         @Component({
@@ -29,14 +30,10 @@ ruleTester({ types: true }).run('prefer-async-pipe', rule, {
           something: string;
           ngOnInit() {
             of("foo").subscribe(value => this.something = value);
+                      ~~~~~~~~~ [forbidden]
           }
         }
       `,
-      errors: [
-        {
-          messageId: 'forbidden',
-        },
-      ],
-    },
+    ),
   ],
 });

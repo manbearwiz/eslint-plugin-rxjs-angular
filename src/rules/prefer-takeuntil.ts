@@ -4,7 +4,6 @@ import {
   type TSESTree as es,
 } from '@typescript-eslint/utils';
 import { stripIndent } from 'common-tags';
-
 import { getTypeServices, ruleCreator } from '../utils';
 
 const messages = {

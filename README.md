@@ -1,14 +1,23 @@
+
+This repo is solely meant to updated cartant's [eslint-plugin-rxjs-angular](https://github.com/cartant/eslint-plugin-rxjs-angular) package to be compatible with eslint v9.
+
+PRs will not be accepted for new features or bug fixes. Reach out to the original maintainer.
+
+```
+npm install eslint-plugin-rxjs-angular-updated
+```
+
 # eslint-plugin-rxjs-angular
 
-[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/master/LICENSE)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/cartant/eslint-plugin-rxjs-angular/blob/master/LICENSE)
 [![NPM version](https://img.shields.io/npm/v/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/eslint-plugin-rxjs-angular)
 [![Downloads](http://img.shields.io/npm/dm/eslint-plugin-rxjs-angular.svg)](https://npmjs.org/package/eslint-plugin-rxjs-angular)
-[![Build status](https://img.shields.io/circleci/build/github/manbearwiz/eslint-plugin-rxjs-angular?token=d3e3fd6613244558287da156fd9e0c4357a2170c)](https://app.circleci.com/pipelines/github/manbearwiz)
-[![dependency status](https://img.shields.io/david/manbearwiz/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/manbearwiz/eslint-plugin-rxjs-angular)
-[![devDependency Status](https://img.shields.io/david/dev/manbearwiz/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/manbearwiz/eslint-plugin-rxjs-angular#info=devDependencies)
-[![peerDependency Status](https://img.shields.io/david/peer/manbearwiz/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/manbearwiz/eslint-plugin-rxjs-angular#info=peerDependencies)
+[![Build status](https://img.shields.io/circleci/build/github/cartant/eslint-plugin-rxjs-angular?token=d3e3fd6613244558287da156fd9e0c4357a2170c)](https://app.circleci.com/pipelines/github/cartant)
+[![dependency status](https://img.shields.io/david/cartant/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/cartant/eslint-plugin-rxjs-angular)
+[![devDependency Status](https://img.shields.io/david/dev/cartant/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/cartant/eslint-plugin-rxjs-angular#info=devDependencies)
+[![peerDependency Status](https://img.shields.io/david/peer/cartant/eslint-plugin-rxjs-angular.svg)](https://david-dm.org/cartant/eslint-plugin-rxjs-angular#info=peerDependencies)
 
-This package contains ESLint versions of the Angular/RxJS rules that are in the [`rxjs-tslint-rules`](https://github.com/manbearwiz/rxjs-tslint-rules) package.
+This package contains ESLint versions of the Angular/RxJS rules that are in the [`rxjs-tslint-rules`](https://github.com/cartant/rxjs-tslint-rules) package.
 
 There is no recommended configuration for this package, as all of the rules are opinionated.
 
@@ -51,6 +60,6 @@ The package includes the following rules:
 
 | Rule | Description | Recommended |
 | --- | --- | --- |
-| [`prefer-async-pipe`](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-async-pipe.md) | Forbids the calling of `subscribe` within Angular components. | No |
-| [`prefer-composition`](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-composition.md) | Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes). | No |
-| [`prefer-takeuntil`](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-takeuntil.md) | Forbids Calling `subscribe` without an accompanying `takeUntil`. | No |
+| [`prefer-async-pipe`](https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-async-pipe.md) | Forbids the calling of `subscribe` within Angular components. | No |
+| [`prefer-composition`](https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-composition.md) | Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes). | No |
+| [`prefer-takeuntil`](https://github.com/cartant/eslint-plugin-rxjs-angular/blob/main/docs/rules/prefer-takeuntil.md) | Forbids Calling `subscribe` without an accompanying `takeUntil`. | No |
