@@ -1,14 +1,9 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
+import { stripIndent } from 'common-tags';
+import rule from '../../src/rules/prefer-takeuntil';
+import { ruleTester } from '../utils';
+import { fromFixture } from '../utils/from-fixture';
 
-import { stripIndent } from "common-tags";
-import { fromFixture } from "eslint-etc";
-import rule = require("../../source/rules/prefer-takeuntil");
-import { ruleTester } from "../utils";
-
-ruleTester({ types: true }).run("prefer-takeuntil", rule, {
+ruleTester({ types: true }).run('prefer-takeuntil', rule, {
   valid: [
     {
       code: stripIndent`
@@ -224,7 +219,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      options: [{ alias: ["someAlias"] }],
+      options: [{ alias: ['someAlias'] }],
     },
     {
       code: stripIndent`
@@ -303,7 +298,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
       `,
       options: [
         {
-          checkDecorators: ["Component", "Pipe", "Injectable", "Directive"],
+          checkDecorators: ['Component', 'Pipe', 'Injectable', 'Directive'],
         },
       ],
     },
@@ -336,7 +331,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
       `,
       options: [
         {
-          alias: ["someAlias"],
+          alias: ['someAlias'],
           checkDestroy: false,
         },
       ],
@@ -364,7 +359,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
       `,
       options: [
         {
-          alias: ["take"],
+          alias: ['take'],
           checkDestroy: false,
         },
       ],
@@ -396,7 +391,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -425,7 +420,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -453,7 +448,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -479,7 +474,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -507,7 +502,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -535,7 +530,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -559,7 +554,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ checkComplete: true }] }
+      { options: [{ checkComplete: true }] },
     ),
     fromFixture(
       stripIndent`
@@ -588,7 +583,7 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
           }
         }
       `,
-      { options: [{ alias: ["someAlias"] }] }
+      { options: [{ alias: ['someAlias'] }] },
     ),
     fromFixture(
       stripIndent`
@@ -652,10 +647,10 @@ ruleTester({ types: true }).run("prefer-takeuntil", rule, {
       {
         options: [
           {
-            checkDecorators: ["Component", "Pipe", "Injectable", "Directive"],
+            checkDecorators: ['Component', 'Pipe', 'Injectable', 'Directive'],
           },
         ],
-      }
+      },
     ),
   ],
 });

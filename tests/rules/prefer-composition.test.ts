@@ -1,14 +1,9 @@
-/**
- * @license Use of this source code is governed by an MIT-style license that
- * can be found in the LICENSE file at https://github.com/cartant/eslint-plugin-rxjs-angular
- */
+import { stripIndent } from 'common-tags';
+import rule from '../../src/rules/prefer-composition';
+import { ruleTester } from '../utils';
+import { fromFixture } from '../utils/from-fixture';
 
-import { stripIndent } from "common-tags";
-import { fromFixture } from "eslint-etc";
-import rule = require("../../source/rules/prefer-composition");
-import { ruleTester } from "../utils";
-
-ruleTester({ types: true }).run("prefer-composition", rule, {
+ruleTester({ types: true }).run('prefer-composition', rule, {
   valid: [
     {
       code: stripIndent`
@@ -121,7 +116,7 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
           ngOnDestroy() {
           }
         }
-      `
+      `,
     ),
     fromFixture(
       stripIndent`
@@ -143,7 +138,7 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
           ngOnDestroy() {
           }
         }
-      `
+      `,
     ),
     fromFixture(
       stripIndent`
@@ -163,7 +158,7 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
             this.subscription.add(of("foo").subscribe(value => this.value = value));
           }
         }
-      `
+      `,
     ),
     fromFixture(
       stripIndent`
@@ -185,7 +180,7 @@ ruleTester({ types: true }).run("prefer-composition", rule, {
           ngOnDestroy() {
           }
         }
-      `
+      `,
     ),
   ],
 });
