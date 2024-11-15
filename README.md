@@ -1,8 +1,9 @@
 # @manbearwiz/eslint-plugin-rxjs-angular
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/master/LICENSE)
-[![NPM version](https://img.shields.io/npm/v/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
-[![Downloads](http://img.shields.io/npm/dm/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
+[![NPM version](https://img.shields.io/npm/v/@manbearwiz/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
+[![Downloads](http://img.shields.io/npm/dm/@manbearwiz/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/manbearwiz/eslint-plugin-rxjs-angular/release.yml)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/actions/workflows/release.yml)
 
 This package contains ESLint versions of the Angular/RxJS rules that are in the [`rxjs-tslint-rules`](https://github.com/manbearwiz/rxjs-tslint-rules) package.
 
