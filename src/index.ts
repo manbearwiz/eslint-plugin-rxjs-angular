@@ -1,14 +1,12 @@
 import type { Linter } from '@typescript-eslint/utils/ts-eslint';
-import fs from 'node:fs';
+const { name, version } = require('../package.json');
 
 import rules from './rules';
 
-const pkg = JSON.parse(fs.readFileSync(new URL('../package.json'), 'utf8'));
-
 export = {
   meta: {
-    name: pkg.name,
-    version: pkg.version,
+    name,
+    version,
   },
   rules,
 } satisfies Linter.Plugin;
