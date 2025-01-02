@@ -5,21 +5,21 @@
 [![Downloads](http://img.shields.io/npm/dm/@manbearwiz/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/manbearwiz/eslint-plugin-rxjs-angular/release.yml)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/actions/workflows/release.yml)
 
-This package contains ESLint versions of the Angular/RxJS rules that are in the [`rxjs-tslint-rules`](https://github.com/manbearwiz/rxjs-tslint-rules) package.
+This package is a fork of the package [`cartant/eslint-plugin-rxjs-angular`](https://github.com/cartant/eslint-plugin-rxjs-angular) with trimmed and updated dependencies to work with both eslint 8 and 9.
 
 There is no recommended configuration for this package, as all of the rules are opinionated.
 
-# Install
+## Install
 
 Install the ESLint TypeScript parser using npm:
 
-```
+```sh
 npm install @typescript-eslint/parser --save-dev
 ```
 
 Install the package using npm:
 
-```
+```sh
 npm install @manbearwiz/eslint-plugin-rxjs-angular --save-dev
 ```
 
@@ -42,7 +42,7 @@ module.exports = {
 };
 ```
 
-# Rules
+## Rules
 
 The package includes the following rules:
 
