@@ -1,29 +1,14 @@
-import {
-  AST_NODE_TYPES,
-  type TSESLint,
-  type TSESTree as es,
-} from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, type TSESTree as es } from '@typescript-eslint/utils';
 import { stripIndent } from 'common-tags';
 import { getTypeServices, ruleCreator } from '../utils';
 
-const messages = {
-  noDestroy: '`ngOnDestroy` is not implemented.',
-  noTakeUntil:
-    'Forbids calling `subscribe` without an accompanying `takeUntil`.',
-  notCalled: '`{{name}}.{{method}}()` not called.',
-  notDeclared: 'Subject `{{name}}` not a class property.',
-} as const;
-type MessageIds = keyof typeof messages;
-
-const defaultOptions: readonly {
-  alias?: string[];
-  checkComplete?: boolean;
-  checkDecorators?: string[];
-  checkDestroy?: boolean;
-}[] = [];
-
 export default ruleCreator({
-  defaultOptions,
+  defaultOptions: [] as readonly {
+    alias?: string[];
+    checkComplete?: boolean;
+    checkDecorators?: string[];
+    checkDestroy?: boolean;
+  }[],
   meta: {
     docs: {
       description:
@@ -31,7 +16,13 @@ export default ruleCreator({
       recommended: false,
     },
     hasSuggestions: false,
-    messages,
+    messages: {
+      noDestroy: '`ngOnDestroy` is not implemented.',
+      noTakeUntil:
+        'Forbids calling `subscribe` without an accompanying `takeUntil`.',
+      notCalled: '`{{name}}.{{method}}()` not called.',
+      notDeclared: 'Subject `{{name}}` not a class property.',
+    },
     schema: [
       {
         properties: {
@@ -53,7 +44,7 @@ export default ruleCreator({
     type: 'problem',
   },
   name: 'prefer-takeuntil',
-  create: (context, _unused: typeof defaultOptions) => {
+  create: (context, _unused) => {
     const { couldBeObservable } = getTypeServices(context);
 
     // If an alias is specified, check for the subject-based destroy only if
@@ -125,8 +116,9 @@ export default ruleCreator({
       // takeUntil operator that conforms to the pattern that this rule
       // enforces.
 
+      type ReportDescriptor = Parameters<typeof context.report>[0];
       type Check = {
-        descriptors: TSESLint.ReportDescriptor<MessageIds>[];
+        descriptors: ReportDescriptor[];
         report: boolean;
       };
       const namesToChecks = new Map<string, Check>();

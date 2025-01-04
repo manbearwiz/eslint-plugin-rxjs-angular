@@ -1,27 +1,25 @@
-# @manbearwiz/eslint-plugin-rxjs-angular
+# @rxlint/eslint-plugin-angular
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/blob/master/LICENSE)
-[![NPM version](https://img.shields.io/npm/v/@manbearwiz/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
-[![Downloads](http://img.shields.io/npm/dm/@manbearwiz/eslint-plugin-rxjs-angular.svg)](https://www.npmjs.com/package/@manbearwiz/eslint-plugin-rxjs-angular)
+[![NPM version](https://img.shields.io/npm/v/@rxlint/eslint-plugin-angular.svg)](https://www.npmjs.com/package/@rxlint/eslint-plugin-angular)
+[![Downloads](http://img.shields.io/npm/dm/@rxlint/eslint-plugin-angular.svg)](https://www.npmjs.com/package/@rxlint/eslint-plugin-angular)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/manbearwiz/eslint-plugin-rxjs-angular/release.yml)](https://github.com/manbearwiz/eslint-plugin-rxjs-angular/actions/workflows/release.yml)
 
 This package is a fork of the package [`cartant/eslint-plugin-rxjs-angular`](https://github.com/cartant/eslint-plugin-rxjs-angular) with trimmed and updated dependencies to work with both eslint 8 and 9.
 
 There is no recommended configuration for this package, as all of the rules are opinionated.
 
-## Install
+## Installation
 
 Install the ESLint TypeScript parser using npm:
 
 ```sh
-npm install @typescript-eslint/parser --save-dev
+npm install --save-dev eslint typescript @typescript-eslint/parser @rxlint/eslint-plugin-angular --save-dev
+# or
+yarn add --dev eslint typescript @typescript-eslint/parser @rxlint/eslint-plugin-angular
 ```
 
-Install the package using npm:
-
-```sh
-npm install @manbearwiz/eslint-plugin-rxjs-angular --save-dev
-```
+## Configuration
 
 Configure the `parser` and the `parserOptions` for ESLint. Here, I use a `.eslintrc.js` file for the configuration:
 
@@ -30,14 +28,14 @@ const { join } = require("path");
 module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaVersion: 2019,
-    project: join(__dirname, "./tsconfig.json"),
+    ecmaVersion: "latest",
+    project: true,
     sourceType: "module"
   },
-  plugins: ["rxjs-angular"],
+  plugins: ["@rxlint/angular"],
   extends: [],
   rules: {
-    "rxjs-angular/prefer-async-pipe": "error"
+    "@rxlint/prefer-async-pipe": "error"
   }
 };
 ```
