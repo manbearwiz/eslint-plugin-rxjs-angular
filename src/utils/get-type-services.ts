@@ -3,30 +3,52 @@ import {
   type TSESLint,
   type TSESTree as es,
 } from '@typescript-eslint/utils';
-import * as tsutils from 'tsutils-etc';
+import ts from 'typescript';
+import { isIntersectionType, isTypeReference, isUnionType } from 'ts-api-utils';
+
+function typeCouldBeType(type: ts.Type, name: string): boolean {
+  const innerType = isTypeReference(type) ? type.target : type;
+
+  return (
+    innerType.symbol?.name === name ||
+    couldImplement(innerType, name) ||
+    innerType.getBaseTypes()?.some((t) => typeCouldBeType(t, name)) ||
+    ((isIntersectionType(innerType) || isUnionType(innerType)) &&
+      innerType.types.some((t) => typeCouldBeType(t, name)))
+  );
+}
+
+function couldImplement(type: ts.Type, name: string): boolean {
+  const valueDeclaration = type.symbol?.valueDeclaration;
+  return (
+    (valueDeclaration &&
+      ts.isClassDeclaration(valueDeclaration) &&
+      valueDeclaration.heritageClauses?.some(
+        ({ token, types }) =>
+          token === ts.SyntaxKind.ImplementsKeyword &&
+          types.some(({ expression }) => expression.getText() === name),
+      )) ??
+    false
+  );
+}
 
 export function getTypeServices<
   TMessageIds extends string,
   TOptions extends unknown[],
 >(context: TSESLint.RuleContext<TMessageIds, Readonly<TOptions>>) {
-  const services = ESLintUtils.getParserServices(context);
-  const { esTreeNodeToTSNodeMap, program } = services;
+  const { esTreeNodeToTSNodeMap, program } =
+    ESLintUtils.getParserServices(context);
   const typeChecker = program.getTypeChecker();
 
-  const couldBeType = (node: es.Node, name: string | RegExp) => {
+  const nodeCouldBeType = (node: es.Node, name: string) => {
     const tsNode = esTreeNodeToTSNodeMap.get(node);
     const type = tsNode && typeChecker.getTypeAtLocation(tsNode);
-    return tsutils.couldBeType(type, name);
+    return type ? typeCouldBeType(type, name) : false;
   };
 
   return {
-    couldBeBehaviorSubject: (node: es.Node) =>
-      couldBeType(node, 'BehaviorSubject'),
-    couldBeError: (node: es.Node) => couldBeType(node, 'Error'),
-    couldBeMonoTypeOperatorFunction: (node: es.Node) =>
-      couldBeType(node, 'MonoTypeOperatorFunction'),
-    couldBeObservable: (node: es.Node) => couldBeType(node, 'Observable'),
-    couldBeSubject: (node: es.Node) => couldBeType(node, 'Subject'),
-    couldBeSubscription: (node: es.Node) => couldBeType(node, 'Subscription'),
+    couldBeObservable: (node: es.Node) => nodeCouldBeType(node, 'Observable'),
+    couldBeSubscription: (node: es.Node) =>
+      nodeCouldBeType(node, 'Subscription'),
   };
 }
