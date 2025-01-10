@@ -10,7 +10,6 @@ export default ruleCreator({
     docs: {
       description:
         'Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes).',
-      recommended: false,
     },
     hasSuggestions: false,
     messages: {

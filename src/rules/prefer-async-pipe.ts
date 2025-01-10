@@ -7,7 +7,6 @@ export default ruleCreator({
     docs: {
       description:
         'Forbids the calling of `subscribe` within Angular components.',
-      recommended: false,
     },
     hasSuggestions: false,
     messages: {

@@ -13,7 +13,6 @@ export default ruleCreator({
     docs: {
       description:
         'Forbids `subscribe` calls without an accompanying `takeUntil` within Angular components (and, optionally, within services, directives, and pipes).',
-      recommended: false,
     },
     hasSuggestions: false,
     messages: {
