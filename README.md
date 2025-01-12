@@ -21,11 +21,15 @@ yarn add --dev eslint typescript @typescript-eslint/parser @rxlint/eslint-plugin
 
 ## Configuration
 
-Configure the `parser` and the `parserOptions` for ESLint. Here, I use a `.eslintrc.js` file for the configuration:
+This plugin should work with both ESLint v8 eslintrc and ESLint v9 eslint.config.js format files.
+
+For ESLint v8, add `@rxlint/angular` to your plugin array:
+
+`.eslintrc.js`
 
 ```js
-const { join } = require("path");
 module.exports = {
+  files: ["**/*.ts"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
@@ -33,11 +37,28 @@ module.exports = {
     sourceType: "module"
   },
   plugins: ["@rxlint/angular"],
-  extends: [],
   rules: {
-    "@rxlint/prefer-async-pipe": "error"
+    "@rxlint/angular/prefer-async-pipe": "error"
   }
 };
+```
+
+For ESLint v9, import the plugin and map it to a name:
+
+`eslint.config.js`
+
+```js
+const rxjsAngular = require("@rxlint/eslint-plugin-angular");
+
+module.exports = [{
+  files: ["**/*.ts"],
+  plugins: {
+    "@rxlint-angular": rxjsAngular
+  },
+  rules: {
+    "@rxlint-angular/prefer-async-pipe": "error"
+  }
+}];
 ```
 
 ## Rules
