@@ -130,7 +130,7 @@ export default ruleCreator({
         const { object } = callee;
         if (
           object.type === AST_NODE_TYPES.MemberExpression &&
-          object.property.type === AST_NODE_TYPES.Identifier
+          !object.computed
         ) {
           return object.property.name;
         }

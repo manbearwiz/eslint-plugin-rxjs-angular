@@ -176,26 +176,25 @@ export default ruleCreator({
 
     function checkOperator(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (callee.type !== AST_NODE_TYPES.Identifier) {
+      if (
+        callee.type !== AST_NODE_TYPES.Identifier ||
+        ![...alias, 'takeUntil'].includes(callee.name)
+      ) {
         return { found: false };
       }
-      if (callee.name === 'takeUntil' || alias.includes(callee.name)) {
-        const [arg] = callExpression.arguments;
-        if (arg) {
-          if (
-            arg.type === AST_NODE_TYPES.MemberExpression &&
-            arg.object.type === AST_NODE_TYPES.ThisExpression &&
-            arg.property.type === AST_NODE_TYPES.Identifier
-          ) {
-            return { found: true, name: arg.property.name };
-          }
-          if (arg && arg.type === AST_NODE_TYPES.Identifier) {
-            return { found: true, name: arg.name };
-          }
-        }
-        if (!checkDestroy) {
-          return { found: true };
-        }
+      const [arg] = callExpression.arguments;
+      if (
+        arg?.type === AST_NODE_TYPES.MemberExpression &&
+        !arg.computed &&
+        arg.object.type === AST_NODE_TYPES.ThisExpression
+      ) {
+        return { found: true, name: arg.property.name };
+      }
+      if (arg?.type === AST_NODE_TYPES.Identifier) {
+        return { found: true, name: arg.name };
+      }
+      if (!checkDestroy) {
+        return { found: true };
       }
       return { found: false };
     }
@@ -212,7 +211,7 @@ export default ruleCreator({
           (callee.type === AST_NODE_TYPES.MemberExpression &&
             callee.object.type === AST_NODE_TYPES.MemberExpression &&
             callee.object.object.type === AST_NODE_TYPES.ThisExpression &&
-            callee.object.property.type === AST_NODE_TYPES.Identifier &&
+            !callee.object.computed &&
             callee.object.property.name === name),
       );
       return Boolean(callExpression);
@@ -242,19 +241,19 @@ export default ruleCreator({
       if (
         object.type === AST_NODE_TYPES.CallExpression &&
         object.callee.type === AST_NODE_TYPES.MemberExpression &&
-        object.callee.property.type === AST_NODE_TYPES.Identifier &&
+        !object.callee.computed &&
         object.callee.property.name === 'pipe'
       ) {
-        const operators = object.arguments;
-        operators.forEach((operator) => {
-          if (operator.type === AST_NODE_TYPES.CallExpression) {
-            const { found, name } = checkOperator(operator);
-            takeUntilFound = takeUntilFound || found;
-            if (name) {
-              names.add(name);
-            }
+        const checked = object.arguments
+          .filter((operator) => operator.type === AST_NODE_TYPES.CallExpression)
+          .map((operator) => checkOperator(operator));
+
+        for (const { found, name } of checked) {
+          takeUntilFound ||= found;
+          if (name) {
+            names.add(name);
           }
-        });
+        }
       }
 
       if (!takeUntilFound) {
