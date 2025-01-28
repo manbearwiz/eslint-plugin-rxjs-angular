@@ -55,6 +55,7 @@
   "release": {
     "branches": ["main"]
   },
+  "type": "commonjs",
   "private": false,
   "publishConfig": {
     "access": "public",
