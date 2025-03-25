@@ -3,8 +3,8 @@ import {
   type TSESLint,
   type TSESTree as es,
 } from '@typescript-eslint/utils';
-import ts from 'typescript';
 import { isIntersectionType, isTypeReference, isUnionType } from 'ts-api-utils';
+import ts from 'typescript';
 
 function typeCouldBeType(type: ts.Type, name: string): boolean {
   const innerType = isTypeReference(type) ? type.target : type;
