@@ -1,23 +1,12 @@
 import type { TSESTree as es } from '@typescript-eslint/utils';
 import { getTypeServices, ruleCreator } from '../utils';
 
-const messages = {
-  forbidden:
-    'Calling `subscribe` in a component is forbidden; use an `async` pipe instead.',
-};
-type MessageIds = keyof typeof messages;
-
-type Options = readonly Record<string, boolean | string>[];
-
-const defaultOptions: Options = [{}];
-
-export default ruleCreator<Options, MessageIds>({
-  defaultOptions,
+export default ruleCreator({
+  defaultOptions: [] as readonly Record<string, boolean | string>[],
   meta: {
     docs: {
       description:
         'Forbids the calling of `subscribe` within Angular components.',
-      recommended: false,
     },
     hasSuggestions: false,
     messages: {

@@ -2,28 +2,22 @@ import { AST_NODE_TYPES, type TSESTree as es } from '@typescript-eslint/utils';
 import { stripIndent } from 'common-tags';
 import { getTypeServices, ruleCreator } from '../utils';
 
-const messages = {
-  notComposed: 'Subscription not composed.',
-  notDeclared: 'Composed subscription `{{name}}` not a class property.',
-  notImplemented: '`ngOnDestroy` not implemented.',
-  notUnsubscribed: 'Composed subscription not unsubscribed.',
-};
-type MessageIds = keyof typeof messages;
-
-const defaultOptions: readonly {
-  checkDecorators?: string[];
-}[] = [];
-
-export default ruleCreator<typeof defaultOptions, MessageIds>({
-  defaultOptions,
+export default ruleCreator({
+  defaultOptions: [] as readonly {
+    checkDecorators?: string[];
+  }[],
   meta: {
     docs: {
       description:
         'Forbids `subscribe` calls that are not composed within Angular components (and, optionally, within services, directives, and pipes).',
-      recommended: false,
     },
     hasSuggestions: false,
-    messages,
+    messages: {
+      notComposed: 'Subscription not composed.',
+      notDeclared: 'Composed subscription `{{name}}` not a class property.',
+      notImplemented: '`ngOnDestroy` not implemented.',
+      notUnsubscribed: 'Composed subscription not unsubscribed.',
+    },
     schema: [
       {
         properties: {
@@ -39,7 +33,7 @@ export default ruleCreator<typeof defaultOptions, MessageIds>({
     type: 'problem',
   },
   name: 'prefer-composition',
-  create: (context, _unused: typeof defaultOptions) => {
+  create: (context, _unused) => {
     const { couldBeObservable, couldBeSubscription } = getTypeServices(context);
     const [{ checkDecorators = ['Component'] } = {}] = context.options;
 
@@ -136,7 +130,7 @@ export default ruleCreator<typeof defaultOptions, MessageIds>({
         const { object } = callee;
         if (
           object.type === AST_NODE_TYPES.MemberExpression &&
-          object.property.type === AST_NODE_TYPES.Identifier
+          !object.computed
         ) {
           return object.property.name;
         }

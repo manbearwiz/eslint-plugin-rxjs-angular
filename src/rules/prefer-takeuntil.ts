@@ -1,37 +1,27 @@
-import {
-  AST_NODE_TYPES,
-  type TSESLint,
-  type TSESTree as es,
-} from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, type TSESTree as es } from '@typescript-eslint/utils';
 import { stripIndent } from 'common-tags';
 import { getTypeServices, ruleCreator } from '../utils';
 
-const messages = {
-  noDestroy: '`ngOnDestroy` is not implemented.',
-  noTakeUntil:
-    'Forbids calling `subscribe` without an accompanying `takeUntil`.',
-  notCalled: '`{{name}}.{{method}}()` not called.',
-  notDeclared: 'Subject `{{name}}` not a class property.',
-} as const;
-type MessageIds = keyof typeof messages;
-
-const defaultOptions: readonly {
-  alias?: string[];
-  checkComplete?: boolean;
-  checkDecorators?: string[];
-  checkDestroy?: boolean;
-}[] = [];
-
 export default ruleCreator({
-  defaultOptions,
+  defaultOptions: [] as readonly {
+    alias?: string[];
+    checkComplete?: boolean;
+    checkDecorators?: string[];
+    checkDestroy?: boolean;
+  }[],
   meta: {
     docs: {
       description:
         'Forbids `subscribe` calls without an accompanying `takeUntil` within Angular components (and, optionally, within services, directives, and pipes).',
-      recommended: false,
     },
     hasSuggestions: false,
-    messages,
+    messages: {
+      noDestroy: '`ngOnDestroy` is not implemented.',
+      noTakeUntil:
+        'Forbids calling `subscribe` without an accompanying `takeUntil`.',
+      notCalled: '`{{name}}.{{method}}()` not called.',
+      notDeclared: 'Subject `{{name}}` not a class property.',
+    },
     schema: [
       {
         properties: {
@@ -53,7 +43,7 @@ export default ruleCreator({
     type: 'problem',
   },
   name: 'prefer-takeuntil',
-  create: (context, _unused: typeof defaultOptions) => {
+  create: (context, _unused) => {
     const { couldBeObservable } = getTypeServices(context);
 
     // If an alias is specified, check for the subject-based destroy only if
@@ -125,8 +115,9 @@ export default ruleCreator({
       // takeUntil operator that conforms to the pattern that this rule
       // enforces.
 
+      type ReportDescriptor = Parameters<typeof context.report>[0];
       type Check = {
-        descriptors: TSESLint.ReportDescriptor<MessageIds>[];
+        descriptors: ReportDescriptor[];
         report: boolean;
       };
       const namesToChecks = new Map<string, Check>();
@@ -185,26 +176,25 @@ export default ruleCreator({
 
     function checkOperator(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (callee.type !== AST_NODE_TYPES.Identifier) {
+      if (
+        callee.type !== AST_NODE_TYPES.Identifier ||
+        ![...alias, 'takeUntil'].includes(callee.name)
+      ) {
         return { found: false };
       }
-      if (callee.name === 'takeUntil' || alias.includes(callee.name)) {
-        const [arg] = callExpression.arguments;
-        if (arg) {
-          if (
-            arg.type === AST_NODE_TYPES.MemberExpression &&
-            arg.object.type === AST_NODE_TYPES.ThisExpression &&
-            arg.property.type === AST_NODE_TYPES.Identifier
-          ) {
-            return { found: true, name: arg.property.name };
-          }
-          if (arg && arg.type === AST_NODE_TYPES.Identifier) {
-            return { found: true, name: arg.name };
-          }
-        }
-        if (!checkDestroy) {
-          return { found: true };
-        }
+      const [arg] = callExpression.arguments;
+      if (
+        arg?.type === AST_NODE_TYPES.MemberExpression &&
+        !arg.computed &&
+        arg.object.type === AST_NODE_TYPES.ThisExpression
+      ) {
+        return { found: true, name: arg.property.name };
+      }
+      if (arg?.type === AST_NODE_TYPES.Identifier) {
+        return { found: true, name: arg.name };
+      }
+      if (!checkDestroy) {
+        return { found: true };
       }
       return { found: false };
     }
@@ -221,7 +211,7 @@ export default ruleCreator({
           (callee.type === AST_NODE_TYPES.MemberExpression &&
             callee.object.type === AST_NODE_TYPES.MemberExpression &&
             callee.object.object.type === AST_NODE_TYPES.ThisExpression &&
-            callee.object.property.type === AST_NODE_TYPES.Identifier &&
+            !callee.object.computed &&
             callee.object.property.name === name),
       );
       return Boolean(callExpression);
@@ -251,19 +241,19 @@ export default ruleCreator({
       if (
         object.type === AST_NODE_TYPES.CallExpression &&
         object.callee.type === AST_NODE_TYPES.MemberExpression &&
-        object.callee.property.type === AST_NODE_TYPES.Identifier &&
+        !object.callee.computed &&
         object.callee.property.name === 'pipe'
       ) {
-        const operators = object.arguments;
-        operators.forEach((operator) => {
-          if (operator.type === AST_NODE_TYPES.CallExpression) {
-            const { found, name } = checkOperator(operator);
-            takeUntilFound = takeUntilFound || found;
-            if (name) {
-              names.add(name);
-            }
+        const checked = object.arguments
+          .filter((operator) => operator.type === AST_NODE_TYPES.CallExpression)
+          .map((operator) => checkOperator(operator));
+
+        for (const { found, name } of checked) {
+          takeUntilFound ||= found;
+          if (name) {
+            names.add(name);
           }
-        });
+        }
       }
 
       if (!takeUntilFound) {

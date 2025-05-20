@@ -34,6 +34,31 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
     {
       code: stripIndent`
+        // correct component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "correct-component"
+        })
+        class CorrectComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+      `,
+    },
+    {
+      code: stripIndent`
         // correct component, not last
         import { Component, OnDestroy } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -56,6 +81,32 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
             this.destroy.next();
             this.destroy.complete();
+          }
+        }
+      `,
+    },
+    {
+      code: stripIndent`
+        // correct component, not last with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { map, switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "correct-component"
+        })
+        class CorrectComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy),
+              map(value => value)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
           }
         }
       `,
@@ -113,6 +164,32 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
             this.destroy.next();
             this.destroy.complete();
+          }
+        }
+      `,
+    },
+    {
+      code: stripIndent`
+        // secondary takeuntil component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "secondary-takeuntil-component"
+        })
+        class SecondaryTakeUntilComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              takeUntil(o),
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
           }
         }
       `,
@@ -223,6 +300,33 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
     {
       code: stripIndent`
+        // with alias with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        const someAlias = takeUntil;
+        @Component({
+          selector: "component-with-alias"
+        })
+        class CorrectComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              someAlias(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+      `,
+      options: [{ alias: ['someAlias'] }],
+    },
+    {
+      code: stripIndent`
         // decorators with takeuntil
         import { Component, OnDestroy } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -304,6 +408,82 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     },
     {
       code: stripIndent`
+        // decorators with takeuntil
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "correct-component"
+        })
+        class CorrectComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+        @Injectable()
+        class CorrectService implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+        @Pipe({
+          name: 'controlByName',
+        })
+        class CorrectPipe implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+        @Directive({
+          selector: 'my-directive'
+        })
+        class CorrectDirective implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+      `,
+      options: [
+        {
+          checkDecorators: ['Component', 'Pipe', 'Injectable', 'Directive'],
+        },
+      ],
+    },
+    {
+      code: stripIndent`
         // https://github.com/cartant/rxjs-tslint-rules/issues/115
         import { Component } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -326,6 +506,38 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
             this.destroy.next();
             this.destroy.complete();
+          }
+        }
+      `,
+      options: [
+        {
+          alias: ['someAlias'],
+          checkDestroy: false,
+        },
+      ],
+    },
+    {
+      code: stripIndent`
+        // https://github.com/cartant/rxjs-tslint-rules/issues/115 with Private JavaScript property
+        import { Component } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        const someAlias = (cmp) => takeUntil(cmp.destroy);
+        @Component({
+          selector: "component-with-alias"
+        })
+        class CorrectComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              someAlias(this)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
           }
         }
       `,
@@ -395,6 +607,30 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     ),
     fromFixture(
       stripIndent`
+        // no pipe component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "no-pipe-component"
+        })
+        class NoPipeComponent {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
         // no takeuntil component
         import { Component, OnDestroy } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -417,6 +653,32 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
             this.destroy.next();
             this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no takeuntil component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "no-takeuntil-component"
+        })
+        class NoTakeUntilComponent {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
           }
         }
       `,
@@ -506,6 +768,29 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     ),
     fromFixture(
       stripIndent`
+        // no destroy component
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "no-destroy-component"
+        })
+        class NoDestroyComponent {
+              ~~~~~~~~~~~~~~~~~~ [noDestroy]
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
         // no complete component
         import { Component, OnDestroy } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -527,6 +812,32 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
           ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "destroy" }]
             this.destroy.next();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // no next component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "no-next-component"
+        })
+        class NoNextComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+          ~~~~~~~~~~~ [notCalled { "method": "next", "name": "destroy" }]
+            this.#destroy.complete();
           }
         }
       `,
@@ -558,6 +869,32 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
     ),
     fromFixture(
       stripIndent`
+        // no complete component with Private JavaScript property
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        @Component({
+          selector: "no-complete-component"
+        })
+        class NoCompleteComponent implements OnDestroy {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o),
+              takeUntil(this.#destroy)
+            ).subscribe();
+          }
+          ngOnDestroy() {
+          ~~~~~~~~~~~ [notCalled { "method": "complete", "name": "destroy" }]
+            this.#destroy.next();
+          }
+        }
+      `,
+      { options: [{ checkComplete: true }] },
+    ),
+    fromFixture(
+      stripIndent`
         // without alias
         import { Component, OnDestroy } from "@angular/core";
         import { of, Subject } from "rxjs";
@@ -580,6 +917,33 @@ ruleTester({ types: true }).run('prefer-takeuntil', rule, {
           ngOnDestroy() {
             this.destroy.next();
             this.destroy.complete();
+          }
+        }
+      `,
+      { options: [{ alias: ['someAlias'] }] },
+    ),
+    fromFixture(
+      stripIndent`
+        // without alias
+        import { Component, OnDestroy } from "@angular/core";
+        import { of, Subject } from "rxjs";
+        import { switchMap, takeUntil } from "rxjs/operators";
+        const o = of("o");
+        const someAlias = takeUntil;
+        @Component({
+          selector: "component-without-alias"
+        })
+        class NoTakeUntilComponent {
+          #destroy = new Subject<void>();
+          someMethod() {
+            o.pipe(
+              switchMap(_ => o)
+            ).subscribe();
+              ~~~~~~~~~ [noTakeUntil]
+          }
+          ngOnDestroy() {
+            this.#destroy.next();
+            this.#destroy.complete();
           }
         }
       `,

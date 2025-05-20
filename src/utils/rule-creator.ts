@@ -1,11 +1,6 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
 
-export interface ESLintPluginDocs {
-  recommended?: boolean | string;
-  suggestion?: boolean;
-}
-
-export const ruleCreator = ESLintUtils.RuleCreator<ESLintPluginDocs>(
+export const ruleCreator = ESLintUtils.RuleCreator(
   (name) =>
     `https://github.com/cartant/eslint-plugin-rxjs-angular/tree/main/docs/rules/${name}.md`,
 );
