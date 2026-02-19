@@ -1,7 +1,7 @@
 import {
   ESLintUtils,
-  type TSESLint,
   type TSESTree as es,
+  type TSESLint,
 } from '@typescript-eslint/utils';
 import { isIntersectionType, isTypeReference, isUnionType } from 'ts-api-utils';
 import ts from 'typescript';

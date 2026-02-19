@@ -71,18 +71,14 @@ export default ruleCreator({
     const entries: Entry[] = [];
 
     function checkEntry(entry: Entry) {
-      const { subscribeCallExpressions } = entry;
-      subscribeCallExpressions.forEach((callExpression) => {
-        const { callee } = callExpression;
-        if (callee.type !== AST_NODE_TYPES.MemberExpression) {
-          return;
-        }
-        const { object } = callee;
-        if (!couldBeObservable(object)) {
-          return;
-        }
+      const expressions = entry.subscribeCallExpressions.filter(
+        ({ callee }) =>
+          callee.type === AST_NODE_TYPES.MemberExpression &&
+          couldBeObservable(callee.object),
+      );
+      for (const callExpression of expressions) {
         checkSubscribe(callExpression, entry);
-      });
+      }
 
       if (checkDestroy) {
         checkNgOnDestroy(entry);
@@ -111,7 +107,7 @@ export default ruleCreator({
 
       // If a subscription to a .pipe() has at least one takeUntil that has no
       // failures, the subscribe call is fine. Callers should be able to use
-      // secondary takUntil operators. However, there must be at least one
+      // secondary takeUntil operators. However, there must be at least one
       // takeUntil operator that conforms to the pattern that this rule
       // enforces.
 
@@ -262,25 +258,16 @@ export default ruleCreator({
     }
 
     function getEntry() {
-      const { length, [length - 1]: entry } = entries;
-      return entry;
+      return entries.at(-1);
     }
 
     function hasDecorator(node: es.ClassDeclaration) {
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const { decorators } = node as any;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      return decorators?.some((decorator: any) => {
-        const { expression } = decorator;
-        if (expression.type !== AST_NODE_TYPES.CallExpression) {
-          return false;
-        }
-        if (expression.callee.type !== AST_NODE_TYPES.Identifier) {
-          return false;
-        }
-        const { name } = expression.callee;
-        return checkDecorators.some((check: string) => name === check);
-      });
+      return node.decorators?.some(
+        ({ expression }) =>
+          expression.type === AST_NODE_TYPES.CallExpression &&
+          expression.callee.type === AST_NODE_TYPES.Identifier &&
+          checkDecorators.includes(expression.callee.name),
+      );
     }
 
     return {

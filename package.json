@@ -12,7 +12,13 @@
     "type": "git",
     "url": "git+https://github.com/manbearwiz/eslint-plugin-rxjs-angular.git"
   },
-  "keywords": ["lint", "rules", "eslint", "rxjs", "angular"],
+  "keywords": [
+    "lint",
+    "rules",
+    "eslint",
+    "rxjs",
+    "angular"
+  ],
   "scripts": {
     "test": "vitest run",
     "coverage": "vitest run --coverage",
@@ -30,7 +36,7 @@
     "ts-api-utils": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "^2.4.3",
     "@commitlint/cli": "^19.0.3",
     "@commitlint/config-angular": "^20.0.0",
     "@tsconfig/node-lts": "^22.0.1",
@@ -52,10 +58,15 @@
     "eslint": "^8.57.0 || ^9.0.0",
     "typescript": ">=4.8.4 <6.0.0"
   },
-  "files": ["dist", "docs"],
+  "files": [
+    "dist",
+    "docs"
+  ],
   "main": "./dist/index.js",
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main"
+    ]
   },
   "type": "commonjs",
   "private": false,

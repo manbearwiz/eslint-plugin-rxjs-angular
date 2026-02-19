@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.3/schema.json",
   "vcs": {
     "clientKind": "git",
     "enabled": true,
@@ -11,13 +11,20 @@
     "indentStyle": "space",
     "formatWithErrors": false
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "style": {
+        "noParameterAssign": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noUselessElse": "error"
+      }
     }
   },
   "javascript": {
@@ -27,16 +34,16 @@
   },
   "overrides": [
     {
-      "include": ["**/*.ts"],
+      "includes": ["**/*.ts"],
       "linter": {
         "rules": {
           "complexity": {
             "noUselessTypeConstraint": "error",
             "noExtraBooleanCast": "error",
-            "noMultipleSpacesInRegularExpressionLiterals": "error",
             "noUselessCatch": "error",
-            "noWith": "error",
-            "noForEach": "off"
+            "noForEach": "off",
+            "noAdjacentSpacesInRegex": "error",
+            "noArguments": "error"
           },
           "correctness": {
             "noConstantCondition": "error",
@@ -45,8 +52,6 @@
             "noEmptyPattern": "error",
             "noGlobalObjectCalls": "error",
             "noInvalidConstructorSuper": "error",
-            "noInvalidNewBuiltin": "error",
-            "noNewSymbol": "off",
             "noNonoctalDecimalEscape": "error",
             "noPrecisionLoss": "error",
             "noSelfAssign": "error",
@@ -60,17 +65,16 @@
             "noUnusedLabels": "error",
             "noUnusedPrivateClassMembers": "error",
             "noUnusedVariables": "error",
-            "useArrayLiterals": "off",
             "useIsNan": "error",
             "useValidForDirection": "error",
-            "useYield": "error"
+            "useYield": "error",
+            "noInvalidBuiltinInstantiation": "error",
+            "useValidTypeof": "error"
           },
           "style": {
-            "noArguments": "error",
             "noInferrableTypes": "warn",
             "noNamespace": "error",
             "noNonNullAssertion": "error",
-            "noVar": "error",
             "useAsConstAssertion": "error",
             "useBlockStatements": "error",
             "useConst": "error",
@@ -113,7 +117,8 @@
             "useAwait": "error",
             "useGetterReturn": "error",
             "useNamespaceKeyword": "error",
-            "useValidTypeof": "error"
+            "noWith": "error",
+            "noVar": "error"
           },
           "security": {
             "noGlobalEval": "error"

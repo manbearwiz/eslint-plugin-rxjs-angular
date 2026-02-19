@@ -89,9 +89,8 @@ export default ruleCreator({
 
       subscriptions.forEach((subscription) => {
         const propertyDefinition = propertyDefinitions.find(
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          (propertyDefinition: any) =>
-            propertyDefinition.key.name === subscription,
+          (propertyDefinition) =>
+            (propertyDefinition.key as es.Identifier).name === subscription,
         );
         if (!propertyDefinition) {
           context.report({
@@ -149,10 +148,8 @@ export default ruleCreator({
     }
 
     function hasDecorator(node: es.ClassDeclaration) {
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const { decorators } = node as any;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      return decorators?.some((decorator: any) => {
+      const { decorators } = node;
+      return decorators?.some((decorator) => {
         const { expression } = decorator;
         if (
           expression.type !== AST_NODE_TYPES.CallExpression ||
