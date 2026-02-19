@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  id-token: write  # Required for OIDC
   contents: read # for checkout
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: 'lts/*'
 
       - name: Install dependencies
         run: npm ci
