@@ -20,15 +20,14 @@ function typeCouldBeType(type: ts.Type, name: string): boolean {
 
 function couldImplement(type: ts.Type, name: string): boolean {
   const valueDeclaration = type.symbol?.valueDeclaration;
-  return (
-    (valueDeclaration &&
-      ts.isClassDeclaration(valueDeclaration) &&
-      valueDeclaration.heritageClauses?.some(
-        ({ token, types }) =>
-          token === ts.SyntaxKind.ImplementsKeyword &&
-          types.some(({ expression }) => expression.getText() === name),
-      )) ??
-    false
+  return !!(
+    valueDeclaration &&
+    ts.isClassDeclaration(valueDeclaration) &&
+    valueDeclaration.heritageClauses?.some(
+      ({ token, types }) =>
+        token === ts.SyntaxKind.ImplementsKeyword &&
+        types.some(({ expression }) => expression.getText() === name),
+    )
   );
 }
 

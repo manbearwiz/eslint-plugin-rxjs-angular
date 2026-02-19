@@ -66,10 +66,10 @@ export default ruleCreator({
         const { callee } = callExpression;
         if (callee.type === AST_NODE_TYPES.MemberExpression) {
           const { object, property } = callee;
-          if (!couldBeObservable(object)) {
-            return;
-          }
-          if (isComposed(callExpression, record)) {
+          if (
+            !couldBeObservable(object) ||
+            isComposed(callExpression, record)
+          ) {
             return;
           }
           context.report({
@@ -143,10 +143,9 @@ export default ruleCreator({
 
     function getMethodCalleeObject(callExpression: es.CallExpression) {
       const { callee } = callExpression;
-      if (callee.type === AST_NODE_TYPES.MemberExpression) {
-        return callee.object;
-      }
-      return undefined;
+      return callee.type === AST_NODE_TYPES.MemberExpression
+        ? callee.object
+        : undefined;
     }
 
     function hasDecorator(node: es.ClassDeclaration) {
@@ -155,10 +154,10 @@ export default ruleCreator({
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       return decorators?.some((decorator: any) => {
         const { expression } = decorator;
-        if (expression.type !== AST_NODE_TYPES.CallExpression) {
-          return false;
-        }
-        if (expression.callee.type !== AST_NODE_TYPES.Identifier) {
+        if (
+          expression.type !== AST_NODE_TYPES.CallExpression ||
+          expression.callee.type !== AST_NODE_TYPES.Identifier
+        ) {
           return false;
         }
         const { name } = expression.callee;

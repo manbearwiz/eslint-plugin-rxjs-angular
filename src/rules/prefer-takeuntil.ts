@@ -193,10 +193,7 @@ export default ruleCreator({
       if (arg?.type === AST_NODE_TYPES.Identifier) {
         return { found: true, name: arg.name };
       }
-      if (!checkDestroy) {
-        return { found: true };
-      }
-      return { found: false };
+      return { found: !checkDestroy };
     }
 
     function checkSubjectCall(

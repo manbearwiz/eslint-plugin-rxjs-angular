@@ -125,6 +125,62 @@ ruleTester({ types: true }).run('prefer-composition', rule, {
     },
     {
       code: stripIndent`
+        // composed component with custom subscription class implementing Subscription interface
+        import { Component, OnDestroy, OnInit } from "@angular/core";
+        import { of } from "rxjs";
+
+        interface Subscription {
+          add(subscription: Subscription): Subscription;
+          unsubscribe(): void;
+        }
+
+        class CustomComposer implements Subscription {
+          add(s: Subscription) { return s; }
+          unsubscribe() {}
+        }
+
+        @Component({
+          selector: "custom-subscription-component",
+          template: "<span>{{ value }}</span>"
+        })
+        export class CustomSubscriptionComponent implements OnInit, OnDestroy {
+          value: string;
+          private subscription = new CustomComposer();
+          ngOnInit() {
+            this.subscription.add(of("foo").subscribe(value => this.value = value));
+          }
+          ngOnDestroy() {
+            this.subscription.unsubscribe();
+          }
+        }
+      `,
+    },
+    {
+      code: stripIndent`
+        // composed component with class extending Subscription
+        import { Component, OnDestroy, OnInit } from "@angular/core";
+        import { of, Subscription } from "rxjs";
+
+        class ExtendedSubscription extends Subscription {}
+
+        @Component({
+          selector: "extended-subscription-component",
+          template: "<span>{{ value }}</span>"
+        })
+        export class ExtendedSubscriptionComponent implements OnInit, OnDestroy {
+          value: string;
+          private subscription = new ExtendedSubscription();
+          ngOnInit() {
+            this.subscription.add(of("foo").subscribe(value => this.value = value));
+          }
+          ngOnDestroy() {
+            this.subscription.unsubscribe();
+          }
+        }
+      `,
+    },
+    {
+      code: stripIndent`
         // not a component
         import { of } from "rxjs";
 
