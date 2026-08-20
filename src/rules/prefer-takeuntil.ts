@@ -119,9 +119,11 @@ export default ruleCreator({
       const namesToChecks = new Map<string, Check>();
 
       const names = new Set<string>();
-      subscribeCallExpressionsToNames.forEach((value) =>
-        value.forEach((name) => names.add(name)),
-      );
+      subscribeCallExpressionsToNames.forEach((value) => {
+        value.forEach((name) => {
+          names.add(name);
+        });
+      });
       names.forEach((name) => {
         const check: Check = {
           descriptors: [],
@@ -158,14 +160,18 @@ export default ruleCreator({
         );
         if (report) {
           names.forEach((name) => {
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            namesToChecks.get(name)!.report = true;
+            const check = namesToChecks.get(name);
+            if (check) {
+              check.report = true;
+            }
           });
         }
       });
       namesToChecks.forEach((check) => {
         if (check.report) {
-          check.descriptors.forEach((descriptor) => context.report(descriptor));
+          check.descriptors.forEach((descriptor) => {
+            context.report(descriptor);
+          });
         }
       });
     }
@@ -213,16 +219,20 @@ export default ruleCreator({
     function checkSubjectProperty(name: string, entry: Entry) {
       const { propertyDefinitions } = entry;
       const propertyDefinition = propertyDefinitions.find(
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        (propertyDefinition: any) => propertyDefinition.key.name === name,
+        (propertyDefinition) =>
+          (propertyDefinition.key.type === AST_NODE_TYPES.Identifier ||
+            propertyDefinition.key.type === AST_NODE_TYPES.PrivateIdentifier) &&
+          propertyDefinition.key.name === name,
       );
       return Boolean(propertyDefinition);
     }
 
     function checkSubscribe(callExpression: es.CallExpression, entry: Entry) {
       const { subscribeCallExpressionsToNames } = entry;
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
-      const names = subscribeCallExpressionsToNames.get(callExpression)!;
+      const names = subscribeCallExpressionsToNames.get(callExpression);
+      if (!names) {
+        return;
+      }
       let takeUntilFound = false;
 
       const { callee } = callExpression;
